@@ -14,32 +14,34 @@ const Page = () => {
 	return (
 		<>
 			<div className='flex justify-between items-center w-full'>
-				<h1 className='text-xl font-bold'>Customers</h1>
+				<h1 className='text-xl font-bold'>Pyments</h1>
 				<Filter />
 			</div>
 			<Separator className='my-3' />
 
 			<Table>
-				<TableCaption>A list of your recent customers.</TableCaption>
+				<TableCaption>A list of your recent payments.</TableCaption>
 				<TableHeader>
 					<TableRow>
-						<TableHead>#</TableHead>
-						<TableHead>Email</TableHead>
-						<TableHead>Full Name</TableHead>
-						<TableHead>Orders</TableHead>
+						<TableHead>Product</TableHead>
+						<TableHead>Customer</TableHead>
 						<TableHead>Status</TableHead>
-						<TableHead className='text-right'>Payments</TableHead>
+						<TableHead>Provider</TableHead>
+						<TableHead className='text-right'>Price</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					<TableRow>
-						<TableCell>1</TableCell>
+						<TableCell>Product 1</TableCell>
 						<TableCell>info@sammi.ac</TableCell>
-						<TableCell>Samar Badriddinov</TableCell>
-						<TableCell>12</TableCell>
-						<TableCell>Active</TableCell>
-						<TableCell className='text-right'>1200$</TableCell>
+						<TableCell>Paid</TableCell>
+						<TableCell>Click</TableCell>
+						<TableCell className='text-right'>100$</TableCell>
 					</TableRow>
+					<TableCell colSpan={4} className='font-bold'>
+						Total
+					</TableCell>
+					<TableCell className='text-right'>100$</TableCell>
 				</TableBody>
 			</Table>
 		</>
