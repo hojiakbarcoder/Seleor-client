@@ -1,5 +1,6 @@
 'use client'
 
+import { login } from '@/actions/auth.action'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -12,20 +13,34 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { showToastError } from '@/lib/utils'
 import { loginSchema } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader } from 'lucide-react'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 const SignInPage = () => {
+	const [isLoading, setIsLoading] = useState(false)
 	const form = useForm<z.infer<typeof loginSchema>>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: { email: '', password: '' },
 	})
 
-	function onSubmit(values: z.infer<typeof loginSchema>) {
-		console.log(values)
+	async function onSubmit(values: z.infer<typeof loginSchema>) {
+		setIsLoading(true)
+		const res = await login(values)
+		console.log(res)
+		showToastError(res)
+		setIsLoading(false)
+		if (res?.data?.success) {
+			toast.success(res.data.success)
+			signIn('credentials', { userId: res.data.user._id, callbackUrl: '/' })
+		}
 	}
 
 	return (
@@ -44,7 +59,11 @@ const SignInPage = () => {
 							<FormItem className='space-y-0'>
 								<Label>Email</Label>
 								<FormControl>
-									<Input placeholder='example@gmial.com' {...field} />
+									<Input
+										placeholder='example@gmial.com'
+										disabled={isLoading}
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage className='text-xs text-red-500' />
 							</FormItem>
@@ -57,13 +76,20 @@ const SignInPage = () => {
 							<FormItem className='space-y-0'>
 								<Label>Password</Label>
 								<FormControl>
-									<Input placeholder='****' type='password' {...field} />
+									<Input
+										placeholder='****'
+										type='password'
+										disabled={isLoading}
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage className='text-xs text-red-500' />
 							</FormItem>
 						)}
 					/>
-					<Button type='submit'>Submit</Button>
+					<Button type='submit' disabled={isLoading}>
+						Submit {isLoading && <Loader className='animate-spin' />}
+					</Button>
 				</form>
 			</Form>
 

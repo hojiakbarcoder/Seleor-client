@@ -1,6 +1,7 @@
 import { ChildProps } from '@/types'
 import './globals.css'
 
+import SessionProvider from '@/components/providers/session.provider'
 import Navbar from '@/components/shared/navbar'
 import { Toaster } from '@/components/ui/toaster'
 import type { Metadata } from 'next'
@@ -20,13 +21,15 @@ export const metadata: Metadata = {
 
 const RootLayout: FC<ChildProps> = ({ children }) => {
 	return (
-		<html lang='en'>
-			<body className={`${montserrat.className} antialiased`}>
-				<Navbar />
-				<main className='container max-w-6xl mt-24'>{children}</main>
-				<Toaster />
-			</body>
-		</html>
+		<SessionProvider>
+			<html lang='en'>
+				<body className={`${montserrat.className} antialiased`}>
+					<Navbar />
+					<main className='container max-w-6xl mt-24'>{children}</main>
+					<Toaster />
+				</body>
+			</html>
+		</SessionProvider>
 	)
 }
 
