@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { showToastError } from '@/lib/utils'
+import { toast } from '@/hooks/use-toast'
 import { loginSchema } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader } from 'lucide-react'
@@ -21,7 +21,6 @@ import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
 
 const SignInPage = () => {
@@ -31,16 +30,31 @@ const SignInPage = () => {
 		defaultValues: { email: '', password: '' },
 	})
 
+	function onError(message: string) {
+		setIsLoading(false)
+		toast({ description: message, variant: 'destructive' })
+	}
+
 	async function onSubmit(values: z.infer<typeof loginSchema>) {
 		setIsLoading(true)
 		const res = await login(values)
-		console.log(res)
-		showToastError(res)
-		setIsLoading(false)
-		if (res?.data?.success) {
-			toast.success(res.data.success)
+		if (res?.serverError || res?.validationErrors || !res?.data) {
+			return onError('Something went wrong')
+		}
+		if (res.data.failure) {
+			return onError(res.data.failure)
+		}
+		if (res.data.user) {
+			toast({ description: 'Logged in successfully' })
 			signIn('credentials', { userId: res.data.user._id, callbackUrl: '/' })
 		}
+		// THIS IS ANOTHER WAY...
+		// showToastError(res)
+		// setIsLoading(false)
+		// if (res?.data?.success) {
+		// 	toast({ description: res.data.success })
+		// 	signIn('credentials', { userId: res.data.user._id, callbackUrl: '/' })
+		// }
 	}
 
 	return (

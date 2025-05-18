@@ -1,0 +1,90 @@
+'use client'
+
+import { IUser } from '@/types'
+import { LogIn } from 'lucide-react'
+import { signOut } from 'next-auth/react'
+import Link from 'next/link'
+import { FC, useState } from 'react'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '../ui/alert-dialog'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '../ui/dropdown-menu'
+
+interface Props {
+	user: IUser
+}
+
+const UserBox: FC<Props> = ({ user }) => {
+	const [open, setOpen] = useState(false)
+	return (
+		<>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Avatar className='cursor-pointer'>
+						<AvatarImage src={user.avatar} alt={user.fullName} />
+						<AvatarFallback className='capitalize bg-primary text-white'>
+							{user.fullName.charAt(0)}
+						</AvatarFallback>
+					</Avatar>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent className='w-56'>
+					<DropdownMenuLabel>My Account</DropdownMenuLabel>
+					<DropdownMenuSeparator />
+					{user.role === 'admin' && (
+						<DropdownMenuLabel className='cursor-pointer' asChild>
+							<Link href={'/admin'}>Admin</Link>
+						</DropdownMenuLabel>
+					)}
+					<DropdownMenuSeparator />
+					<DropdownMenuLabel className='cursor-pointer' asChild>
+						<Link href={'/dashboard'}>Dashboard</Link>
+					</DropdownMenuLabel>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem
+						className='cursor-pointer bg-red-500'
+						onClick={() => setOpen(true)}
+					>
+						<LogIn />
+						<span>Log out</span>
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+			<AlertDialog open={open} onOpenChange={setOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action cannot be undone. This will logout you from
+							application
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={() => signOut({ callbackUrl: '/sign-in' })}
+						>
+							Continue
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</>
+	)
+}
+
+export default UserBox

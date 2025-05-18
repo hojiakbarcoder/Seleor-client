@@ -1,7 +1,7 @@
+import { toast } from '@/hooks/use-toast'
 import { QueryProps } from '@/types'
 import clsx, { ClassValue } from 'clsx'
 import qs from 'query-string'
-import { toast } from 'sonner'
 
 import { twMerge } from 'tailwind-merge'
 
@@ -36,9 +36,9 @@ export function removeUrlQuery({ params, key }: QueryProps) {
 
 export function showToastError(res: any) {
 	if (res?.serverError || res?.validationErrors || !res?.data) {
-		return toast.error('Something went wrong')
+		return toast({ description: 'Server error', variant: 'destructive' })
 	}
 	if (res.data.failure) {
-		return toast.error(res.data.failure)
+		return toast({ description: res.data.failure, variant: 'destructive' })
 	}
 }
