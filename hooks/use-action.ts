@@ -1,0 +1,14 @@
+import { useState } from 'react'
+import { toast } from './use-toast'
+
+const UseAction = () => {
+	const [isLoading, setIsLoading] = useState(false)
+	function onError(message: string) {
+		setIsLoading(false)
+		toast({ description: message, variant: 'destructive' })
+	}
+
+	return { isLoading, setIsLoading, onError }
+}
+
+export default UseAction

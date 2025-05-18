@@ -13,27 +13,22 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import UseAction from '@/hooks/use-action'
 import { toast } from '@/hooks/use-toast'
 import { loginSchema } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 const SignInPage = () => {
-	const [isLoading, setIsLoading] = useState(false)
+	const { isLoading, setIsLoading, onError } = UseAction()
 	const form = useForm<z.infer<typeof loginSchema>>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: { email: '', password: '' },
 	})
-
-	function onError(message: string) {
-		setIsLoading(false)
-		toast({ description: message, variant: 'destructive' })
-	}
 
 	async function onSubmit(values: z.infer<typeof loginSchema>) {
 		setIsLoading(true)

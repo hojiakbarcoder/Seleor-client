@@ -12,6 +12,7 @@ export interface ReturnActionType {
 	user: IUser
 	failure: string
 	success: string
+	status: number
 }
 
 export interface IProduct {
