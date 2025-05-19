@@ -31,3 +31,4 @@ export const authOptions: NextAuthOptions = {
 	jwt: { secret: process.env.NEXT_PUBLIC_JWT_SECRET },
 	secret: process.env.NEXT_AUTH_SECRET,
 }
+// console.log(authOptions)

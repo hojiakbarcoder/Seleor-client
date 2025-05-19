@@ -60,3 +60,21 @@ export const productSchema = z.object({
 	image: z.string(),
 	imageKey: z.string(),
 })
+
+export const updateProductSchema = z
+	.object({
+		id: z.string(),
+	})
+	.merge(productSchema)
+
+export const idSchema = z.object({
+	id: z.string(),
+})
+
+export const searchParamsSchema = z.object({
+	searchQuery: z.string().optional(),
+	filter: z.string().optional(),
+	category: z.string().optional(),
+	page: z.string().default('1'),
+	pageSize: z.string().default('6'),
+})

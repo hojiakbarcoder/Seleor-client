@@ -83,7 +83,6 @@ const SignUpPage = () => {
 		}
 		if (res.data.status === 200) {
 			const response = await register(form.getValues())
-			console.log(response)
 			if (
 				response?.serverError ||
 				response?.validationErrors ||
