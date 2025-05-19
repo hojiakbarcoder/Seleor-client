@@ -13,6 +13,7 @@ export interface ReturnActionType {
 	failure: string
 	success: string
 	status: number
+	products: IProduct[]
 }
 
 export interface IProduct {

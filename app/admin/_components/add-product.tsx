@@ -1,5 +1,6 @@
 'use client'
 
+import { createProduct, deleteFile } from '@/actions/admin.action'
 import { Button } from '@/components/ui/button'
 import {
 	Form,
@@ -25,16 +26,21 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet'
+import UseAction from '@/hooks/use-action'
 import { useProduct } from '@/hooks/use-product'
+import { toast } from '@/hooks/use-toast'
 import { categories } from '@/lib/constants'
+import { UploadDropzone } from '@/lib/uploadthing'
 import { formatPrice } from '@/lib/utils'
 import { productSchema } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusCircle } from 'lucide-react'
+import { Loader, PlusCircle, X } from 'lucide-react'
+import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 const AddProduct = () => {
+	const { isLoading, setIsLoading, onError } = UseAction()
 	const { open, setOpen } = useProduct()
 
 	const form = useForm<z.infer<typeof productSchema>>({
@@ -50,11 +56,35 @@ const AddProduct = () => {
 	})
 
 	async function onSubmit(values: z.infer<typeof productSchema>) {
-		console.log(values)
+		if (!form.watch('image'))
+			return toast({
+				description: 'Please upload an image',
+				variant: 'destructive',
+			})
+		setIsLoading(true)
+		const res = await createProduct(values)
+		if (res?.serverError || res?.validationErrors || !res?.data) {
+			return onError('Something went wrong')
+		}
+		if (res.data.failure) {
+			return onError(res.data.failure)
+		}
+		if (res.data.status === 201) {
+			toast({ description: 'Product created successfully' })
+			setOpen(false)
+			form.reset()
+			setIsLoading(false)
+		}
 	}
 
 	function onOpen() {
 		setOpen(true)
+	}
+
+	function onDeleteImage() {
+		deleteFile(form.watch('imageKey'))
+		form.setValue('image', '')
+		form.setValue('imageKey', '')
 	}
 	return (
 		<>
@@ -84,6 +114,7 @@ const AddProduct = () => {
 												placeholder='Adidas shoes'
 												className='bg-secondary'
 												{...field}
+												disabled={isLoading}
 											/>
 										</FormControl>
 										<FormMessage className='text-xs text-red-500' />
@@ -101,6 +132,7 @@ const AddProduct = () => {
 												placeholder='Adidas shoes are the best shoes in the world'
 												className='bg-secondary'
 												{...field}
+												disabled={isLoading}
 											/>
 										</FormControl>
 										<FormMessage className='text-xs text-red-500' />
@@ -116,6 +148,7 @@ const AddProduct = () => {
 										<Select
 											onValueChange={field.onChange}
 											defaultValue={field.value}
+											disabled={isLoading}
 										>
 											<FormControl>
 												<SelectTrigger className='bg-secondary'>
@@ -151,14 +184,45 @@ const AddProduct = () => {
 												type='number'
 												className='bg-secondary'
 												{...field}
+												disabled={isLoading}
 											/>
 										</FormControl>
 										<FormMessage className='text-xs text-red-500' />
 									</FormItem>
 								)}
 							/>
-							<Button type='submit' className='w-full'>
-								Submit
+							{form.watch('image') && (
+								<div className='w-full h-[200px] bg-secondary flex justify-center items-center relative'>
+									<Image
+										src={form.watch('image')}
+										alt='product image'
+										fill
+										className='object-cover'
+									/>
+									<Button
+										size={'icon'}
+										variant={'destructive'}
+										className='absolute top-0 right-0'
+										type='button'
+										onClick={onDeleteImage}
+									>
+										<X />
+									</Button>
+								</div>
+							)}
+							{!form.watch('image') && (
+								<UploadDropzone
+									endpoint={'imageUploader'}
+									onClientUploadComplete={res => {
+										form.setValue('image', res[0].url)
+										form.setValue('imageKey', res[0].key)
+									}}
+									config={{ appendOnPaste: true, mode: 'auto' }}
+									appearance={{ container: { height: 200, padding: 10 } }}
+								/>
+							)}
+							<Button type='submit' className='w-full' disabled={isLoading}>
+								Submit {isLoading && <Loader className='animate-spin' />}
 							</Button>
 						</form>
 					</Form>

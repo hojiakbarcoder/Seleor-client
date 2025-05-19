@@ -55,7 +55,7 @@ const ProductCard: FC<Props> = ({ product }) => {
 				</p>
 				<Separator className='my-2' />
 			</div>
-			<div>
+			<div className='grid grid-cols-2 gap-2 px-2 pb-2'>
 				<Button variant={'secondary'} onClick={onEdit}>
 					Edit
 				</Button>
