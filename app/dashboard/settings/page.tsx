@@ -33,9 +33,7 @@ const Page = () => {
 		defaultValues: { oldPassword: '', newPassword: '', confirmPassword: '' },
 	})
 
-	function onSubmit(values: z.infer<typeof passwordSchema>) {
-		console.log(values)
-	}
+	function onSubmit(values: z.infer<typeof passwordSchema>) {}
 	return (
 		<>
 			<h1 className='text-xl font-bold'>Danger Zone</h1>

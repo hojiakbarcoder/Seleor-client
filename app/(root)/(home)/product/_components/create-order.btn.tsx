@@ -1,0 +1,40 @@
+import { Button } from '@/components/ui/button'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
+
+const CreateOrderBtn = () => {
+	return (
+		<Popover>
+			<PopoverTrigger asChild>
+				<Button className='w-fit' size={'lg'}>
+					Purchase
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent className='p-1 w-56' side='right'>
+				<div className='flex flex-col space-y-1'>
+					<Button variant={'secondary'}>
+						{/* <Image src={'/stripe.svg'} alt='stripe' width={70} height={50} className='cursor-pointer'/> */}
+						<span>stripe</span>
+					</Button>
+					<Button variant={'secondary'}>
+						{/* <Image src={'/stripe.svg'} alt='stripe' width={70} height={50} className='cursor-pointer'/> */}
+						<span>stripe</span>
+					</Button>
+					<Button variant={'secondary'}>
+						{/* <Image src={'/stripe.svg'} alt='stripe' width={70} height={50} className='cursor-pointer'/> */}
+						<span>stripe</span>
+					</Button>
+					<Button variant={'secondary'}>
+						{/* <Image src={'/stripe.svg'} alt='stripe' width={70} height={50} className='cursor-pointer'/> */}
+						<span>stripe</span>
+					</Button>
+				</div>
+			</PopoverContent>
+		</Popover>
+	)
+}
+
+export default CreateOrderBtn

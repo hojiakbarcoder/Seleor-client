@@ -22,9 +22,7 @@ const EmailForm = () => {
 			email: '',
 		},
 	})
-	function onSubmit(values: z.infer<typeof emailSchema>) {
-		console.log(values)
-	}
+	function onSubmit(values: z.infer<typeof emailSchema>) {}
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
