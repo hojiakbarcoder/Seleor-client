@@ -1,5 +1,8 @@
 'use client'
 
+import { deleteFavorite } from '@/actions/user.action'
+import UseAction from '@/hooks/use-action'
+import { toast } from '@/hooks/use-toast'
 import { formatPrice } from '@/lib/utils'
 import { IProduct } from '@/types'
 import { Heart } from 'lucide-react'
@@ -12,8 +15,25 @@ interface Props {
 	product: Partial<IProduct>
 }
 const WatchListCard: FC<Props> = ({ product }) => {
+	const { isLoading, setIsLoading, onError } = UseAction()
+
+	async function onDelete() {
+		setIsLoading(true)
+		const res = await deleteFavorite({ id: product._id! })
+		if (res?.serverError || res?.validationErrors || !res?.data) {
+			return onError('Something went wrong')
+		}
+		if (res.data.failure) {
+			return onError(res.data.failure)
+		}
+		if (res.data.status === 200) {
+			toast({ description: 'Product removed from watchlist' })
+			setIsLoading(false)
+		}
+	}
+
 	return (
-		<div className={'border relative flex flex-col'}>
+		<div className={'border relative flex flex-col '}>
 			<div className='bg-secondary relative'>
 				<Image
 					src={product.image!}
@@ -23,7 +43,7 @@ const WatchListCard: FC<Props> = ({ product }) => {
 					alt={product.title!}
 				/>
 				<div className='absolute right-0 top-0 z-50 flex items-center'>
-					<Button size={'icon'}>
+					<Button size={'icon'} disabled={isLoading} onClick={onDelete}>
 						<Heart className='text-red-500 fill-red-500' />
 					</Button>
 				</div>
