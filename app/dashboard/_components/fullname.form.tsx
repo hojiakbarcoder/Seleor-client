@@ -1,5 +1,6 @@
 'use client'
 
+import { updateUser } from '@/actions/user.action'
 import { Button } from '@/components/ui/button'
 import {
 	Form,
@@ -10,19 +11,44 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import UseAction from '@/hooks/use-action'
+import { toast } from '@/hooks/use-toast'
 import { fullNameSchema } from '@/lib/validation'
+import { IUser } from '@/types'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { FC } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-const EmailForm = () => {
+interface Props {
+	user: IUser
+}
+const EmailForm: FC<Props> = ({ user }) => {
+	const { update } = useSession()
+	const { isLoading, setIsLoading, onError } = UseAction()
 	const form = useForm<z.infer<typeof fullNameSchema>>({
 		resolver: zodResolver(fullNameSchema),
 		defaultValues: {
-			fullName: '',
+			fullName: user.fullName,
 		},
 	})
-	function onSubmit(values: z.infer<typeof fullNameSchema>) {}
+	async function onSubmit(values: z.infer<typeof fullNameSchema>) {
+		setIsLoading(true)
+		const res = await updateUser(values)
+		if (res?.serverError || res?.validationErrors || !res?.data) {
+			return onError('Something went wrong')
+		}
+		if (res.data.failure) {
+			return onError(res.data.failure)
+		}
+		if (res.data.status === 200) {
+			toast({ description: 'Full name updated successfully' })
+			update()
+			setIsLoading(false)
+		}
+	}
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
@@ -37,6 +63,7 @@ const EmailForm = () => {
 									placeholder='full anme'
 									className='bg-white'
 									{...field}
+									disabled={isLoading}
 								/>
 							</FormControl>
 
@@ -44,8 +71,13 @@ const EmailForm = () => {
 						</FormItem>
 					)}
 				/>
-				<Button type='submit' className='self-end mb-0.5' size={'sm'}>
-					Submit
+				<Button
+					type='submit'
+					className='self-end mb-0.5'
+					size={'sm'}
+					disabled={isLoading}
+				>
+					Submit {isLoading && <Loader className='animate-spin' />}
 				</Button>
 			</form>
 		</Form>

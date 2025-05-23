@@ -1,5 +1,6 @@
 'use client'
 
+import { updatePassword, updateUser } from '@/actions/user.action'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -22,18 +23,52 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import UseAction from '@/hooks/use-action'
+import { toast } from '@/hooks/use-toast'
 import { passwordSchema } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { signOut } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 const Page = () => {
+	const { isLoading, onError, setIsLoading } = UseAction()
 	const form = useForm<z.infer<typeof passwordSchema>>({
 		resolver: zodResolver(passwordSchema),
 		defaultValues: { oldPassword: '', newPassword: '', confirmPassword: '' },
 	})
 
-	function onSubmit(values: z.infer<typeof passwordSchema>) {}
+	async function onDelete() {
+		setIsLoading(true)
+		const res = await updateUser({ isDelete: true, deletedAt: new Date() })
+		if (res?.serverError || res?.validationErrors || !res?.data) {
+			return onError('Something went wrong')
+		}
+		if (res.data.failure) {
+			return onError(res.data.failure)
+		}
+		if (res.data.status === 200) {
+			toast({ description: 'Account deleted successfully' })
+			setIsLoading(false)
+			signOut({ callbackUrl: '/sign-up' })
+		}
+	}
+
+	async function onSubmit(values: z.infer<typeof passwordSchema>) {
+		setIsLoading(true)
+		const res = await updatePassword(values)
+		if (res?.serverError || res?.validationErrors || !res?.data) {
+			return onError('Something went wrong')
+		}
+		if (res.data.failure) {
+			return onError(res.data.failure)
+		}
+		if (res.data.status === 200) {
+			toast({ description: 'Password updated successfully' })
+			setIsLoading(false)
+			form.reset()
+		}
+	}
 	return (
 		<>
 			<h1 className='text-xl font-bold'>Danger Zone</h1>
@@ -59,8 +94,10 @@ const Page = () => {
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>
-							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction>Continue</AlertDialogAction>
+							<AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+							<AlertDialogAction onClick={onDelete} disabled={isLoading}>
+								Continue
+							</AlertDialogAction>
 						</AlertDialogFooter>
 					</AlertDialogContent>
 				</AlertDialog>
@@ -82,6 +119,7 @@ const Page = () => {
 												type='password'
 												className='bg-white'
 												{...field}
+												disabled={isLoading}
 											/>
 										</FormControl>
 
@@ -101,6 +139,7 @@ const Page = () => {
 												type='password'
 												className='bg-white'
 												{...field}
+												disabled={isLoading}
 											/>
 										</FormControl>
 
@@ -120,6 +159,7 @@ const Page = () => {
 												type='password'
 												className='bg-white'
 												{...field}
+												disabled={isLoading}
 											/>
 										</FormControl>
 
@@ -127,7 +167,9 @@ const Page = () => {
 									</FormItem>
 								)}
 							/>
-							<Button type='submit'>Submit</Button>
+							<Button type='submit' disabled={isLoading}>
+								Submit
+							</Button>
 						</form>
 					</Form>
 				</div>

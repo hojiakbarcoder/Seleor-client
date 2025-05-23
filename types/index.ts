@@ -24,6 +24,11 @@ export interface ReturnActionType {
 	customers: IUser[]
 	orders: IOrder[]
 	transactions: ITransactions[]
+	statistics: {
+		totalOrders: number
+		totalFavorites: number
+		totalTransactions: number
+	}
 }
 
 export interface IProduct {
@@ -46,7 +51,7 @@ export interface IUser {
 	totalPrice: number
 	avatar: string
 	avatarKey: string
-	isDeleted: boolean
+	isDelete: boolean
 	deletedAt: Date
 	favorites: IProduct
 }

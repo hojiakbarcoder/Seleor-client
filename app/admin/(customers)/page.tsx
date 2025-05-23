@@ -69,9 +69,9 @@ const Page: FC<Props> = async props => {
 								</TableCell>
 								<TableCell>
 									<Badge
-										variant={customer.isDeleted ? 'destructive' : 'secondary'}
+										variant={customer.isDelete ? 'destructive' : 'secondary'}
 									>
-										{customer.isDeleted ? 'Deleted' : 'Active'}
+										{customer.isDelete ? 'Deleted' : 'Active'}
 									</Badge>
 								</TableCell>
 								<TableCell className='text-right'>

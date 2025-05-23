@@ -78,3 +78,12 @@ export const searchParamsSchema = z.object({
 	page: z.string().default('1'),
 	pageSize: z.string().default('6'),
 })
+
+export const updateUserSchema = z.object({
+	fullName: z.string().optional(),
+	email: z.string().optional(),
+	avatar: z.string().optional(),
+	avatarKey: z.string().optional(),
+	isDelete: z.boolean().optional(),
+	deletedAt: z.date().optional(),
+})

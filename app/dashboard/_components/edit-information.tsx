@@ -1,3 +1,6 @@
+'use client'
+
+import { updateUser } from '@/actions/user.action'
 import {
 	Accordion,
 	AccordionContent,
@@ -13,21 +16,58 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
+import UseAction from '@/hooks/use-action'
+import { toast } from '@/hooks/use-toast'
+import { UploadDropzone } from '@/lib/uploadthing'
+import { IUser } from '@/types'
+import { AvatarImage } from '@radix-ui/react-avatar'
 import { Edit2 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { FC, useState } from 'react'
 import EmailForm from './email.form'
 import FullNameForm from './fullname.form'
 
-const EditInformation = () => {
+interface Props {
+	user: IUser
+}
+
+const EditInformation: FC<Props> = ({ user }) => {
+	const [open, setOpen] = useState(false)
+	const { update } = useSession()
+	const { isLoading, setIsLoading, onError } = UseAction()
+
+	const onUpdateAvatar = async (avatar: string, avatarKey: string) => {
+		setIsLoading(true)
+		const res = await updateUser({ avatar, avatarKey })
+		if (res?.serverError || res?.validationErrors || !res?.data) {
+			return onError('Something went wrong')
+		}
+		if (res.data.failure) {
+			return onError(res.data.failure)
+		}
+		if (res.data.status === 200) {
+			toast({ description: 'User updated successfully' })
+			update()
+			setOpen(false)
+			setIsLoading(false)
+		}
+	}
+
 	return (
 		<>
 			<div className='w-full h-52 bg-secondary flex justify-center items-center'>
 				<div className='relative'>
+					{isLoading && (
+						<Skeleton className='absolute inset-0 bg-secondary z-50 justify-center items-center'></Skeleton>
+					)}
 					<Avatar className='size-32'>
+						<AvatarImage src={user.avatar} alt={user.fullName} />
 						<AvatarFallback className='bg-primary text-white text-6xl'>
-							CN
+							{user.fullName.charAt(0).toUpperCase()}
 						</AvatarFallback>
 					</Avatar>
-					<Dialog>
+					<Dialog open={open} onOpenChange={setOpen}>
 						<DialogTrigger asChild>
 							<Button
 								size={'icon'}
@@ -41,6 +81,14 @@ const EditInformation = () => {
 							<DialogHeader>
 								<DialogTitle />
 							</DialogHeader>
+							<UploadDropzone
+								endpoint={'imageUploader'}
+								config={{ appendOnPaste: true, mode: 'auto' }}
+								appearance={{ container: { height: 200, padding: 10 } }}
+								onClientUploadComplete={res =>
+									onUpdateAvatar(res[0].url, res[0].key)
+								}
+							/>
 						</DialogContent>
 					</Dialog>
 				</div>
@@ -52,22 +100,22 @@ const EditInformation = () => {
 						<AccordionTrigger>
 							<div className='flex flex-col space-y-0'>
 								<h2 className='font-bold'>Full Name</h2>
-								<p className='text-muted-foreground'>Akbar (Ghost)</p>
+								<p className='text-muted-foreground'>{user.fullName}</p>
 							</div>
 						</AccordionTrigger>
 						<AccordionContent className='border-l border-l-primary pl-4'>
-							<FullNameForm />
+							<FullNameForm user={user} />
 						</AccordionContent>
 					</AccordionItem>
 					<AccordionItem value='item-2'>
 						<AccordionTrigger>
 							<div className='flex flex-col space-y-0'>
 								<h2 className='font-bold'>Email</h2>
-								<p className='text-muted-foreground'>example@gmail.com</p>
+								<p className='text-muted-foreground'>{user.email}</p>
 							</div>
 						</AccordionTrigger>
 						<AccordionContent className='border-l border-l-primary pl-4'>
-							<EmailForm />
+							<EmailForm user={user} />
 						</AccordionContent>
 					</AccordionItem>
 				</Accordion>
