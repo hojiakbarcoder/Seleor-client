@@ -12,7 +12,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, sliceText } from '@/lib/utils'
 import { SearchParams } from '@/types'
 import { format } from 'date-fns'
 import { FC } from 'react'
@@ -44,7 +44,7 @@ const Page: FC<Props> = async props => {
 				<TableHeader>
 					<TableRow>
 						<TableHead>Product</TableHead>
-						<TableHead>Customer</TableHead>
+						<TableHead className='w-[140px]'>Customer</TableHead>
 						<TableHead>Price</TableHead>
 						<TableHead>Status</TableHead>
 						<TableHead>Created at</TableHead>
@@ -63,7 +63,9 @@ const Page: FC<Props> = async props => {
 						orders.map(order => (
 							<TableRow key={order._id}>
 								<TableCell>{order.product.title}</TableCell>
-								<TableCell>{order.user.email}</TableCell>
+								<TableCell className='w-[140px]'>
+									{sliceText(order.user.email, 10)}
+								</TableCell>
 								<TableCell>
 									<Badge variant={'outline'}>{formatPrice(order.price)}</Badge>
 								</TableCell>

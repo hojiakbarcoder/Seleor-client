@@ -12,7 +12,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, sliceText } from '@/lib/utils'
 import { SearchParams } from '@/types'
 import { FC } from 'react'
 
@@ -62,7 +62,7 @@ const Page: FC<Props> = async props => {
 						customers.map((customer, index) => (
 							<TableRow key={customer._id}>
 								<TableCell># {index + 1}</TableCell>
-								<TableCell>{customer.email}</TableCell>
+								<TableCell>{sliceText(customer.email, 10)}</TableCell>
 								<TableCell>{customer.fullName}</TableCell>
 								<TableCell>
 									<Badge>{customer.orderCount}</Badge>

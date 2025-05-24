@@ -1,6 +1,7 @@
 import { getTransactions } from '@/actions/user.action'
 import Filter from '@/components/shared/filter'
 import Pagination from '@/components/shared/pagination'
+import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
 	Table,
@@ -11,8 +12,10 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
-import { formatPrice } from '@/lib/utils'
+import { TransactionState } from '@/lib/constants'
+import { cn, formatPrice, getStatusText, getStatusVariant } from '@/lib/utils'
 import { SearchParams } from '@/types'
+import Image from 'next/image'
 import { FC } from 'react'
 
 interface Props {
@@ -42,6 +45,7 @@ const Page: FC<Props> = async props => {
 				)}
 				<TableHeader>
 					<TableRow>
+						<TableHead></TableHead>
 						<TableHead>Product</TableHead>
 						<TableHead>Provider</TableHead>
 						<TableHead>Status</TableHead>
@@ -59,11 +63,35 @@ const Page: FC<Props> = async props => {
 					{transactions &&
 						transactions.map(transaction => (
 							<TableRow key={transaction._id}>
+								<TableCell>
+									<Image
+										src={transaction.product.image}
+										alt={transaction.product.title}
+										width={50}
+										height={50}
+									/>
+								</TableCell>
 								<TableCell>{transaction.product.title}</TableCell>
-								<TableCell>{transaction.provider}</TableCell>
-								<TableCell>{transaction.state}</TableCell>
+								<TableCell>
+									<Badge variant={'outline'} className='capitalize'>
+										{transaction.provider}
+									</Badge>
+								</TableCell>
+								<TableCell>
+									<Badge variant={getStatusVariant(transaction.state)}>
+										{getStatusText(transaction.state)}
+									</Badge>
+								</TableCell>
 								<TableCell className='text-right'>
-									{formatPrice(transaction.amount)}
+									<Badge
+										variant={'secondary'}
+										className={cn(
+											transaction.state === TransactionState.PaidCancelled &&
+												'text-red-500 font-bold'
+										)}
+									>
+										{formatPrice(transaction.amount)}
+									</Badge>
 								</TableCell>
 							</TableRow>
 						))}
