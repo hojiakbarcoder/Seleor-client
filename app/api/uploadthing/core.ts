@@ -17,7 +17,13 @@ export const ourFileRouter = {
 			return { token }
 		})
 		.onUploadComplete(async ({ file }) => {
-			return file
+			return {
+				name: file.name,
+				url: file.url,
+				key: file.key,
+				size: file.size,
+				type: file.type,
+			}
 		}),
 } satisfies FileRouter
 
